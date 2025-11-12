@@ -168,9 +168,99 @@ c.  Alternatively, we may consider using the priors below:
     &\BetaDist(100,2)\quad\text{(strongly informative, favoring large \(\theta\))}
     \end{align*} Please plot, on a common $\theta \in [0,1]$ axis, the
     posterior densities for the four priors (the baseline prior in part
+
     (a) and the alternative priors above).
 
+### 
+
+**a)**
+
+We model the data as
+
+$$
+y \sim \text{Binom}(n, \theta), \qquad \theta \sim \text{Beta}(\alpha, \beta).
+$$
+
+**b)**
+
+By Beta–Binomial conjugacy, the posterior is also Beta–distributed:
+
+$$
+\theta \mid y, n \sim \text{Beta}(\alpha + y,\, \beta + n - y).
+$$
+
+------------------------------------------------------------------------
+
+**c)**
+
+For our observed data $n = 274$ and $y = 44$, the posterior parameters
+under each prior are:
+
+| Prior | $\alpha$ | $\beta$ | Posterior $\alpha'$ | Posterior $\beta'$ | Posterior mean $E[\theta \mid y,n]$ |
+|:-----------|:----------:|:----------:|:----------:|:----------:|:----------:|
+| Baseline $\text{Beta}(2,10)$ | 2 | 10 | 46 | 240 | 0.1608 |
+| Uniform $\text{Beta}(1,1)$ | 1 | 1 | 45 | 231 | 0.1630 |
+| Jeffreys $\text{Beta}(0.5,0.5)$ | 0.5 | 0.5 | 44.5 | 230.5 | 0.1618 |
+| Informative $\text{Beta}(100,2)$ | 100 | 2 | 144 | 232 | 0.3830 |
+
+------------------------------------------------------------------------
+
+The general expression for the posterior mean is
+
+$$
+E[\theta \mid y,n] = \frac{\alpha + y}{\alpha + \beta + n}.
+$$
+
 ```{r, echo = TRUE, include = TRUE}
+
+library(tidyverse)
+
+# Data
+n <- 274
+y <- 44
+
+# Priors
+priors <- tribble(
+  ~name,                      ~alpha, ~beta,
+  "Baseline  Beta(2,10)",       2,     10,
+  "Uniform   Beta(1,1)",        1,      1,
+  "Jeffreys  Beta(0.5,0.5)",    0.5,    0.5,
+  "Informative Beta(100,2)",  100,      2
+)
+
+# Posterior params and means
+post <- priors %>%
+  mutate(
+    alpha_post = alpha + y,
+    beta_post  = beta  + (n - y),
+    post_mean  = (alpha + y) / (alpha + beta + n)
+  )
+
+print(post)
+
+# Grid and densities
+theta_grid <- seq(0, 1, length.out = 2001)
+
+dens <- post %>%
+  rowwise() %>%
+  mutate(d = list(tibble(
+    theta = theta_grid,
+    density = dbeta(theta_grid, alpha_post, beta_post)
+  ))) %>%
+  unnest(d) %>%
+  ungroup()
+
+# Plot
+ggplot(dens, aes(theta, density, color = name)) +
+  geom_line(linewidth = 1) +
+  labs(
+    title = expression("Posterior densities of " * theta * " under four priors"),
+    x = expression(theta),
+    y = "Density",
+    color = "Prior"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top")
 
 ```
 
