@@ -1,7 +1,7 @@
 ---
 title: "Math for Data Science: Problem Set 2"
 output: pdf_document
-author: "Group: Nick Bornemann, " 
+author: "Group: Nick Bornemann, [your names]" 
 date: "2025-11-11"
 header-includes:
   - \usepackage{comment}
@@ -268,3 +268,22 @@ d.  In a few sentences, interpret how prior shape and strength influence
     the posterior relative to the data. Which prior(s) seem the most
     defensible in this context? If you were interested in monitoring
     algae presence, what would be your takeaway from this analysis?
+
+The comparison shows that the weak or moderately informative priors
+(Baseline, Uniform, Jeffreys) have very little influence on the
+posterior. With a sample of 274 sites, the data dominate the update, and
+all three priors yield posterior means close to the empirical proportion
+of algae presence (\~16%). The only clear deviation comes from the
+highly informative **Beta(100,2)** prior, which puts substantial weight
+on its strong prior belief and therefore pulls the posterior toward much
+higher values than the data suggest. This highlights that, in practice,
+prior *strength* matters far more than prior *shape* when the dataset is
+reasonably large.
+
+In this context, the weakly informative or neutral priors are the most
+defensible, since there is no strong justification for imposing heavy
+prior assumptions about algae prevalence. For monitoring purposes, the
+main takeaway is that the estimated prevalence is quite robust across
+all reasonable priors. This gives confidence that the underlying
+detection rate is around 15–16%, and that management or monitoring
+decisions can reliably be based on this estimate.
